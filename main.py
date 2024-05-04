@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_restx import Api, Resource, reqparse
 from model import db, Book
 from Schema import BookSchema
@@ -47,21 +47,21 @@ class BookList(Resource):
     
 @ns.route('/<int:book_id>')
 class BookIndividual(Resource):
-    
+    #Get book by ID
     def get(self, book_id):
         book = Book.query.get(book_id)
         if book:
             return ({'id': book.id, 'title': book.title, 'author': book.author, 'year': book.year, 'isbn': book.isbn}), 200
         else:
             return ({'error': 'Book not found'}), 404
-
+     #Update book by ID
     @ns.expect(book_parser) 
     def put(self, book_id):
        book = Book.query.get(book_id)
        if book:
            data = book_parser.parse_args()
            try:
-            # Use the load method with partial=True to allow partial updates
+            
             update_data = book_schema.load(data, partial=True)
            except ValidationError as err:
                return err.messages, 400
@@ -71,7 +71,7 @@ class BookIndividual(Resource):
            return book_schema.dump(book), 200
        else:
            return ({'error': 'Book not found'}), 404
-        
+       #Delete book by ID 
     def delete(self, book_id):
         book = Book.query.get(book_id)
         if book:
